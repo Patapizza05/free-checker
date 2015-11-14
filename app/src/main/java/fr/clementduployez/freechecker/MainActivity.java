@@ -2,8 +2,11 @@ package fr.clementduployez.freechecker;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
@@ -20,8 +23,12 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mTextView = (TextView) findViewById(R.id.test);
-
         mMobileInfo = new MobileInfo(getApplicationContext());
+    }
+
+    private void startAntennaCheckService() {
+        Intent startIntent = new Intent(MainActivity.this, AntennaCheckService.class);
+        startService(startIntent);
     }
 
     @Override
@@ -36,22 +43,62 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         updateAntennaInformation();
+        startAntennaCheckService();
     }
-
-    private static int i = 0;
 
     public void updateAntennaInformation() {
-        String connectionDate;
         String antenna = mMobileInfo.getTelephonyManagerInfo().getOperatorAntennaName();
-        String signal;
-        String CellIdentification;
-        String locationAreaCode;
-
         mTextView.setText(antenna);
-
-
-
     }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public void test() {
         Context context = getApplicationContext();
@@ -119,20 +166,5 @@ public class MainActivity extends Activity {
                 + "Network OperatorId : " + networkOperatorId + "\n"
                 + "Network Name : " + networkName + "\n" + "Network Type : "
                 + networkType);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 }

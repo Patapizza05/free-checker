@@ -19,6 +19,10 @@ public class TelephonyManagerInfo {
 
     }
 
+    public TelephonyManager getTelephonyManager() {
+        return mTelephonyManager;
+    }
+
     public MncInfo getMncCode() {
         return MncConstants.mncCodes.get(getMNC());
     }
