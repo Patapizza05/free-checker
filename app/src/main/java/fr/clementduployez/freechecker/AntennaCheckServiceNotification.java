@@ -31,15 +31,23 @@ public class AntennaCheckServiceNotification {
         final String ticker = "Free Checker";
 
         int drawable;
-        if (mncInfo.getBrand().equals(MncConstants.FREE)) {
+        if (mncInfo != null && mncInfo.getBrand().equals(MncConstants.FREE)) {
             drawable = R.drawable.circle;
         }
         else {
             drawable = R.drawable.cross;
         }
 
+        String operator;
+        if (mncInfo != null) {
+            operator = mncInfo.getOperator();
+        }
+        else {
+            operator = "Unknown";
+        }
+
         Notification notification = new NotificationCompat.Builder(context)
-                .setContentTitle(mncInfo.getOperator())
+                .setContentTitle(operator)
                 .setTicker(ticker)
                 .setSmallIcon(drawable)
                 .setOngoing(true)

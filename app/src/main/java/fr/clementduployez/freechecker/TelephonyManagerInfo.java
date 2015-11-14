@@ -2,6 +2,7 @@ package fr.clementduployez.freechecker;
 
 import android.content.Context;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 /**
  * Created by cdupl on 11/14/2015.
@@ -28,7 +29,11 @@ public class TelephonyManagerInfo {
     }
 
     public String getOperatorAntennaName() {
-        return getMncCode().getOperator();
+        MncInfo mnc = getMncCode();
+        if (mnc != null) {
+            return mnc.getOperator();
+        }
+        return "Unknown";
     }
 
 
@@ -96,7 +101,8 @@ public class TelephonyManagerInfo {
     }
 
     public Integer getMNC(String networkOperator) {
-        if (networkOperator != null) {
+        Log.i("TelephonyManagerInfo", "MNC" + networkOperator);
+        if (networkOperator != null && networkOperator.length() > 3) {
             return Integer.parseInt(networkOperator.substring(3));
         }
         return null;
