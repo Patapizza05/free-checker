@@ -18,5 +18,11 @@ public class MobileInfo {
         mConnectivityManagerInfo = new ConnectivityManagerInfo(context, this);
     }
 
+    public TelephonyManagerInfo getTelephonyManagerInfo() {
+        return mTelephonyManagerInfo;
+    }
 
+    public ConnectivityManagerInfo getConnectivityManagerInfo() {
+        return mConnectivityManagerInfo;
+    }
 }

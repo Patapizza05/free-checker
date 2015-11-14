@@ -13,12 +13,15 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
 
     private TextView mTextView;
+    private MobileInfo mMobileInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mTextView = (TextView) findViewById(R.id.test);
+
+        mMobileInfo = new MobileInfo(getApplicationContext());
     }
 
     @Override
@@ -38,13 +41,20 @@ public class MainActivity extends Activity {
     private static int i = 0;
 
     public void updateAntennaInformation() {
-        /*ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        String text = "Test "+i++ + " "+connectivityManager;
-        Log.i("MainActivity", text);
-        mTextView.setText(text);*/
+        String connectionDate;
+        String antenna = mMobileInfo.getTelephonyManagerInfo().getOperatorAntennaName();
+        String signal;
+        String CellIdentification;
+        String locationAreaCode;
 
+        mTextView.setText(antenna);
+
+
+
+    }
+
+    public void test() {
         Context context = getApplicationContext();
-
         /**
          * <uses-permission android:name="android.permission.READ_PHONE_STATE"
          * /> <uses-permission
@@ -109,9 +119,6 @@ public class MainActivity extends Activity {
                 + "Network OperatorId : " + networkOperatorId + "\n"
                 + "Network Name : " + networkName + "\n" + "Network Type : "
                 + networkType);
-
-
-
     }
 
     @Override

@@ -19,6 +19,13 @@ public class TelephonyManagerInfo {
 
     }
 
+    public MncInfo getMncCode() {
+        return MncConstants.mncCodes.get(getMNC());
+    }
+
+    public String getOperatorAntennaName() {
+        return getMncCode().getOperator();
+    }
 
 
     public String getSimNumber() {
@@ -67,5 +74,27 @@ public class TelephonyManagerInfo {
 
     public int getNetworkType() {
         return mTelephonyManager.getNetworkType();
+    }
+
+    public Integer getMCC() {
+        return getMCC(getNetworkOperatorId());
+    }
+
+    public Integer getMCC(String networkOperator) {
+        if (networkOperator != null) {
+            return Integer.parseInt(networkOperator.substring(0, 3));
+        }
+        return null;
+    }
+
+    public Integer getMNC() {
+        return getMNC(getNetworkOperatorId());
+    }
+
+    public Integer getMNC(String networkOperator) {
+        if (networkOperator != null) {
+            return Integer.parseInt(networkOperator.substring(3));
+        }
+        return null;
     }
 }
