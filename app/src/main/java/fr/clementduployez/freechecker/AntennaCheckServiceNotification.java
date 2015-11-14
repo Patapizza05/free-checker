@@ -28,7 +28,7 @@ public class AntennaCheckServiceNotification {
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
 
-        final String ticker = "Free Checker";
+        final String ticker = "Free Checker Service";
 
         int drawable;
         if (mncInfo != null && mncInfo.getBrand().equals(MncConstants.FREE)) {
@@ -47,7 +47,8 @@ public class AntennaCheckServiceNotification {
         }
 
         Notification notification = new NotificationCompat.Builder(context)
-                .setContentTitle(operator)
+                .setContentTitle("Free Checker")
+                .setContentText(operator)
                 .setTicker(ticker)
                 .setSmallIcon(drawable)
                 .setOngoing(true)
