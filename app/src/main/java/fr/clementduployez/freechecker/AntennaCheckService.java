@@ -22,18 +22,36 @@ public class AntennaCheckService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (mAntennaListener == null) {
-            initAntennaListener();
+        if (intent != null && intent.getAction() != null && intent.getAction().equals("Close")) {
+            closeService(intent);
         }
-        return Service.START_STICKY;
+        else {
+            if (mAntennaListener == null) {
+                initAntennaListener();
+            }
+            return Service.START_STICKY;
+        }
+
+        return Service.START_NOT_STICKY;
+
     }
 
-    private void makeNotification() {
-        AntennaCheckServiceNotification.sendAntennaCheckNotification(mMobileInfo.getTelephonyManagerInfo().getMncCode());
+    private void closeService(Intent intent) {
+        removeAntennaListener();
+        AntennaCheckServiceNotification.removeNotification();
+        stopSelf();
+        stopService(intent);
+    }
+
+    private void removeAntennaListener() {
+        mMobileInfo.getTelephonyManagerInfo().getTelephonyManager().listen(mAntennaListener,PhoneStateListener.LISTEN_NONE);
+        mAntennaListener = null;
     }
 
     private void initAntennaListener() {
-        this.mAntennaListener = new AntennaListener(mMobileInfo);
+        if (this.mAntennaListener == null) {
+            this.mAntennaListener = new AntennaListener(mMobileInfo);
+        }
         mMobileInfo.getTelephonyManagerInfo().getTelephonyManager().listen(mAntennaListener,PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
     }
 }

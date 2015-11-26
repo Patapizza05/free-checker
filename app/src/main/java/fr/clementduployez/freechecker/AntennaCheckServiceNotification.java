@@ -23,6 +23,11 @@ public class AntennaCheckServiceNotification {
     private static final String TITLE = "Free Checker";
     private static final String TICKER = TITLE + " Service";
 
+
+    private static Notification freeNotification = null;
+    private static Notification orangeNotification = null;
+    private static Notification unknownNotification = null;
+
     public static void sendAntennaCheckNotification(MncInfo mncInfo) {
 
         if (mncInfo != null) {
@@ -43,18 +48,27 @@ public class AntennaCheckServiceNotification {
     }
 
     public static void sendFreeNotification(String text) {
-        sendNotification(text,R.drawable.circle, FreeCheckerApplication.getContext().getResources().getColor(R.color.green));
+        if (freeNotification == null) {
+            freeNotification = makeNotification(text, R.drawable.circle, FreeCheckerApplication.getContext().getResources().getColor(R.color.green));
+        }
+        sendNotification(freeNotification);
     }
 
     public static void sendOrangeNotification(String text) {
-        sendNotification(text,R.drawable.cross, FreeCheckerApplication.getContext().getResources().getColor(R.color.red));
+        if (orangeNotification == null) {
+            orangeNotification = makeNotification(text, R.drawable.cross, FreeCheckerApplication.getContext().getResources().getColor(R.color.red));
+        }
+        sendNotification(orangeNotification);
     }
 
     public static void sendUnknownNotification() {
-        sendNotification("Unknown",R.drawable.cross, FreeCheckerApplication.getContext().getResources().getColor(R.color.red));
+        if (unknownNotification == null) {
+            unknownNotification = makeNotification("Unknown", R.drawable.cross, FreeCheckerApplication.getContext().getResources().getColor(R.color.red));
+        }
+        sendNotification(unknownNotification);
     }
 
-    private static void sendNotification(String text, int drawable, int color) {
+    private static Notification makeNotification(String text, int drawable, int color) {
         Context context = FreeCheckerApplication.getContext();
 
         Intent notificationIntent = new Intent(context, MainActivity.class);
@@ -62,6 +76,19 @@ public class AntennaCheckServiceNotification {
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
 
+
+        /**
+         * Expanded Notification Actions
+         */
+        Intent quitIntent = new Intent(context, AntennaCheckService.class);
+        quitIntent.setAction("Close");
+
+        PendingIntent pQuitIntent = PendingIntent.getService(context, 0, quitIntent, 0);
+
+        NotificationCompat.Action quitAction = new NotificationCompat.Action.Builder(android.R.drawable.ic_menu_close_clear_cancel, "Close", pQuitIntent).build();
+        /**
+         *
+         */
 
         Notification notification = new NotificationCompat.Builder(context)
                 .setContentTitle(text)
@@ -71,8 +98,14 @@ public class AntennaCheckServiceNotification {
                 .setSmallIcon(drawable)
                 .setOngoing(true)
                 .setColor(color)
+                .addAction(quitAction)
                 .build();
 
+        return notification;
+    }
+
+    private static void sendNotification(Notification notification) {
+        Context context = FreeCheckerApplication.getContext();
         notify(context, notification);
     }
 
@@ -85,5 +118,12 @@ public class AntennaCheckServiceNotification {
         } else {
             nm.notify(NOTIFICATION_TAG.hashCode(), notification);
         }
+    }
+
+    public static void removeNotification() {
+        Context context = FreeCheckerApplication.getContext();
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        //notificationManager.cancel(NOTIFICATION_ID);
+        notificationManager.cancelAll();
     }
 }
