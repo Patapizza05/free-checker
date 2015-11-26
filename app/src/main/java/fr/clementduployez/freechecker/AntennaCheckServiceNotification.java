@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v7.app.NotificationCompat;
 
@@ -19,39 +20,57 @@ public class AntennaCheckServiceNotification {
      */
     private static final String NOTIFICATION_TAG = "MainNotification";
     private static final int NOTIFICATION_ID = 1;
+    private static final String TITLE = "Free Checker";
+    private static final String TICKER = TITLE + " Service";
 
     public static void sendAntennaCheckNotification(MncInfo mncInfo) {
-        Context context = FreeCheckerApplication.getContext();
-        Intent notificationIntent = new Intent(context, MainActivity.class);
 
+        if (mncInfo != null) {
+            if (mncInfo.getBrand().equals(MncConstants.FREE)) {
+                sendFreeNotification(mncInfo.getOperator());
+            }
+            else if (mncInfo.getBrand().equals(MncConstants.ORANGE)) {
+                sendOrangeNotification(mncInfo.getOperator());
+            }
+            else
+            {
+                sendUnknownNotification();
+            }
+        }
+        else {
+            sendUnknownNotification();
+        }
+    }
+
+    public static void sendFreeNotification(String text) {
+        sendNotification(text,R.drawable.circle, FreeCheckerApplication.getContext().getResources().getColor(R.color.green));
+    }
+
+    public static void sendOrangeNotification(String text) {
+        sendNotification(text,R.drawable.cross, FreeCheckerApplication.getContext().getResources().getColor(R.color.red));
+    }
+
+    public static void sendUnknownNotification() {
+        sendNotification("Unknown",R.drawable.cross, FreeCheckerApplication.getContext().getResources().getColor(R.color.red));
+    }
+
+    private static void sendNotification(String text, int drawable, int color) {
+        Context context = FreeCheckerApplication.getContext();
+
+        Intent notificationIntent = new Intent(context, MainActivity.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
 
-        final String ticker = "Free Checker Service";
-
-        int drawable;
-        if (mncInfo != null && mncInfo.getBrand().equals(MncConstants.FREE)) {
-            drawable = R.drawable.circle;
-        }
-        else {
-            drawable = R.drawable.cross;
-        }
-
-        String operator;
-        if (mncInfo != null) {
-            operator = mncInfo.getOperator();
-        }
-        else {
-            operator = "Unknown";
-        }
 
         Notification notification = new NotificationCompat.Builder(context)
-                .setContentTitle("Free Checker")
-                .setContentText(operator)
-                .setTicker(ticker)
+                .setContentTitle(text)
+                .setContentText(TITLE)
+                .setTicker(TICKER)
+                .setContentIntent(pendingIntent)
                 .setSmallIcon(drawable)
                 .setOngoing(true)
+                .setColor(color)
                 .build();
 
         notify(context, notification);
