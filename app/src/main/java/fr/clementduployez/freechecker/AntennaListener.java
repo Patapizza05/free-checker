@@ -26,6 +26,7 @@ public class AntennaListener extends PhoneStateListener {
     }
 
     public void onDataConnectionStateChanged(int state){
+        Log.i("onDataConnecStateCha",""+state);
         AntennaCheckServiceNotification.sendAntennaCheckNotification(mMobileInfo.getTelephonyManagerInfo().getMncCode());
     }
 
