@@ -105,6 +105,7 @@ public class AntennaCheckServiceNotification {
                 .setColor(color)
                 .addAction(quitAction)
                 .addAction(settingsAction)
+                .setAutoCancel(true)
                 .build();
 
         return notification;

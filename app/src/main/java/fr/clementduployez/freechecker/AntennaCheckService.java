@@ -34,6 +34,7 @@ public class AntennaCheckService extends Service {
             mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             FreeCheckerApplication.getContext().startActivity(mIntent);
             startActivity(mIntent);
+            sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
         }
         else {
             if (mAntennaListener == null) {
