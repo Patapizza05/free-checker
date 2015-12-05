@@ -90,6 +90,11 @@ public class AntennaCheckServiceNotification {
          *
          */
 
+        Intent settingsIntent = new Intent(context, AntennaCheckService.class);
+        settingsIntent.setAction("Settings");
+        PendingIntent pSettingsIntent = PendingIntent.getService(context, 0, settingsIntent, 0);
+        NotificationCompat.Action settingsAction = new NotificationCompat.Action.Builder(android.R.drawable.ic_secure, "Settings", pSettingsIntent).build();
+
         Notification notification = new NotificationCompat.Builder(context)
                 .setContentTitle(text)
                 .setContentText(TITLE)
@@ -99,6 +104,7 @@ public class AntennaCheckServiceNotification {
                 .setOngoing(true)
                 .setColor(color)
                 .addAction(quitAction)
+                .addAction(settingsAction)
                 .build();
 
         return notification;

@@ -3,6 +3,7 @@ package fr.clementduployez.freechecker;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.telephony.PhoneStateListener;
 import android.util.Log;
 
@@ -22,8 +23,17 @@ public class AntennaCheckService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
         if (intent != null && intent.getAction() != null && intent.getAction().equals("Close")) {
             closeService(intent);
+        }
+        else if (intent != null && intent.getAction() != null && intent.getAction().equals("Settings"))
+        {
+            Log.i("Service", "Open settings");
+            Intent mIntent = new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS);
+            mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            FreeCheckerApplication.getContext().startActivity(mIntent);
+            startActivity(mIntent);
         }
         else {
             if (mAntennaListener == null) {
