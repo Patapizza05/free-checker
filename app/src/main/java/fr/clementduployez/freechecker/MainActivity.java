@@ -5,12 +5,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -29,6 +28,8 @@ public class MainActivity extends Activity {
     private TextView mOperator;
     private TextView mRoaming;
     private TextView mCountry;
+
+    SharedPreferences sharedPref;
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -52,11 +53,28 @@ public class MainActivity extends Activity {
         mRoaming = (TextView)findViewById(R.id.roaming);
         mCountry = (TextView)findViewById(R.id.country);
         mMobileInfo = new MobileInfo(getApplicationContext());
+
+        sharedPref = getPreferences(Context.MODE_PRIVATE);
+    }
+
+    private void saveData(String key, boolean value) {
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean(key,value);
+        editor.commit();
+    }
+
+    private boolean loadData(String key, boolean defaultValue) {
+        return sharedPref.getBoolean(key, defaultValue);
+    }
+
+    private boolean loadData(String key) {
+        return loadData(key, false);
     }
 
     private void startAntennaCheckService() {
         Intent startIntent = new Intent(MainActivity.this, AntennaCheckService.class);
         startService(startIntent);
+        saveData("runService",true);
     }
 
     private void stopAntennaCheckService() {
@@ -64,6 +82,7 @@ public class MainActivity extends Activity {
         stopIntent.setAction("Close");
         Intent stopServiceIntent = new Intent(MainActivity.this, AntennaCheckService.class);
         stopService(stopServiceIntent);
+        saveData("runService", false);
     }
 
     @Override
@@ -71,13 +90,7 @@ public class MainActivity extends Activity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         mToggleServiceItem = menu.findItem(R.id.action_toggleService);
-        if (mToggleServiceItem != null && mToggleServiceItem.isChecked()) {
-            startAntennaCheckService();
-            wasChecked = true;
-        }
-        else {
-            wasChecked = false;
-        }
+        mToggleServiceItem.setChecked(loadData("runService"));
         return true;
     }
 
@@ -85,7 +98,7 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         updateAntennaInformation();
-        if (!wasChecked && mToggleServiceItem != null && mToggleServiceItem.isChecked()) {
+        if (loadData("runService")) {
             startAntennaCheckService();
         }
         IntentFilter filter = new IntentFilter();
@@ -107,7 +120,7 @@ public class MainActivity extends Activity {
         String operatorName = null;
         String operatorId = null;
         String country = null;
-        String brand = null;
+        String brand;
         Boolean roaming = false;
         int imageResource = R.drawable.cross;
 
@@ -125,7 +138,7 @@ public class MainActivity extends Activity {
                         imageResource = R.drawable.freemobile;
                     }
                     else if (brand.equals(MncConstants.ORANGE)) {
-                        imageResource = R.drawable.orange_logo;
+                        imageResource = R.drawable.orangelogo;
                     }
 
                     mnc = telephonyManager.getMNC();
@@ -207,39 +220,6 @@ public class MainActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public void test() {
         Context context = getApplicationContext();
