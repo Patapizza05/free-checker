@@ -11,11 +11,13 @@ import android.util.Log;
 public class AntennaListener extends PhoneStateListener {
 
     private final MobileInfo mMobileInfo;
+    private final AntennaCheckService mService;
     private TelephonyManager mTelephonyManager;
 
 
-    public AntennaListener(MobileInfo mobileInfo) {
+    public AntennaListener(MobileInfo mobileInfo, AntennaCheckService service) {
         mMobileInfo = mobileInfo;
+        mService = service;
         mTelephonyManager = mMobileInfo.getTelephonyManagerInfo().getTelephonyManager();
 
         /*callStateListener = new PhoneStateListener(){
@@ -27,7 +29,7 @@ public class AntennaListener extends PhoneStateListener {
 
     public void onDataConnectionStateChanged(int state){
         Log.i("onDataConnecStateCha",""+state);
-        AntennaCheckServiceNotification.sendAntennaCheckNotification(mMobileInfo.getTelephonyManagerInfo().getMncCode());
+        AntennaCheckServiceNotification.sendAntennaCheckNotification(mMobileInfo.getTelephonyManagerInfo().getMncCode(),mService);
     }
 
 

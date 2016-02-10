@@ -9,6 +9,9 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v7.app.NotificationCompat;
+import android.util.Log;
+
+import java.io.Console;
 
 /**
  * Created by cdupl on 11/14/2015.
@@ -18,54 +21,53 @@ public class AntennaCheckServiceNotification {
     /**
      * The unique identifier for this type of notification.
      */
-    private static final String NOTIFICATION_TAG = "MainNotification";
-    private static final int NOTIFICATION_ID = 1;
+    public static final int NOTIFICATION_ID = 1;
     private static final String TITLE = "Free Checker";
     private static final String TICKER = TITLE + " Service";
 
-
+    private static Notification currentNotification = null;
     private static Notification freeNotification = null;
     private static Notification orangeNotification = null;
     private static Notification unknownNotification = null;
 
-    public static void sendAntennaCheckNotification(MncInfo mncInfo) {
+    public static void sendAntennaCheckNotification(MncInfo mncInfo, AntennaCheckService service) {
 
         if (mncInfo != null) {
             if (mncInfo.getBrand().equals(MncConstants.FREE)) {
-                sendFreeNotification(mncInfo.getOperator());
+                sendFreeNotification(mncInfo.getOperator(), service);
             }
             else if (mncInfo.getBrand().equals(MncConstants.ORANGE)) {
-                sendOrangeNotification(mncInfo.getOperator());
+                sendOrangeNotification(mncInfo.getOperator(), service);
             }
             else
             {
-                sendUnknownNotification();
+                sendUnknownNotification(service);
             }
         }
         else {
-            sendUnknownNotification();
+            sendUnknownNotification(service);
         }
     }
 
-    public static void sendFreeNotification(String text) {
+    public static void sendFreeNotification(String text, AntennaCheckService service) {
         if (freeNotification == null) {
             freeNotification = makeNotification(text, R.drawable.circle, FreeCheckerApplication.getContext().getResources().getColor(R.color.green));
         }
-        sendNotification(freeNotification);
+        sendNotification(freeNotification, service);
     }
 
-    public static void sendOrangeNotification(String text) {
+    public static void sendOrangeNotification(String text, AntennaCheckService service) {
         if (orangeNotification == null) {
             orangeNotification = makeNotification(text, R.drawable.cross, FreeCheckerApplication.getContext().getResources().getColor(R.color.red));
         }
-        sendNotification(orangeNotification);
+        sendNotification(orangeNotification, service);
     }
 
-    public static void sendUnknownNotification() {
+    public static void sendUnknownNotification(AntennaCheckService service) {
         if (unknownNotification == null) {
             unknownNotification = makeNotification("Unknown", R.drawable.cross, FreeCheckerApplication.getContext().getResources().getColor(R.color.red));
         }
-        sendNotification(unknownNotification);
+        sendNotification(unknownNotification, service);
     }
 
     private static Notification makeNotification(String text, int drawable, int color) {
@@ -80,20 +82,12 @@ public class AntennaCheckServiceNotification {
         /**
          * Expanded Notification Actions
          */
-        Intent quitIntent = new Intent(context, AntennaCheckService.class);
-        quitIntent.setAction("Close");
-
-        PendingIntent pQuitIntent = PendingIntent.getService(context, 0, quitIntent, 0);
-
-        NotificationCompat.Action quitAction = new NotificationCompat.Action.Builder(android.R.drawable.ic_menu_close_clear_cancel, "Close", pQuitIntent).build();
+        NotificationCompat.Action quitAction = makeAction("Close","Close",R.drawable.ic_power_settings_new_black_24dp);
+        NotificationCompat.Action settingsAction = makeAction("Settings","Settings",R.drawable.ic_settings_black_24dp);
+        //NotificationCompat.Action refreshAction = makeAction("","Refresh",R.drawable.ic_autorenew_black_24dp);
         /**
          *
          */
-
-        Intent settingsIntent = new Intent(context, AntennaCheckService.class);
-        settingsIntent.setAction("Settings");
-        PendingIntent pSettingsIntent = PendingIntent.getService(context, 0, settingsIntent, 0);
-        NotificationCompat.Action settingsAction = new NotificationCompat.Action.Builder(android.R.drawable.ic_secure, "Settings", pSettingsIntent).build();
 
         Notification notification = new NotificationCompat.Builder(context)
                 .setContentTitle(text)
@@ -103,34 +97,47 @@ public class AntennaCheckServiceNotification {
                 .setSmallIcon(drawable)
                 .setOngoing(true)
                 .setColor(color)
-                .addAction(quitAction)
                 .addAction(settingsAction)
+                //.addAction(refreshAction)
+                .addAction(quitAction)
                 .setAutoCancel(true)
                 .build();
 
         return notification;
     }
 
-    private static void sendNotification(Notification notification) {
+    private static NotificationCompat.Action makeAction(String title, String actionTag, int drawable)
+    {
+        Context context = FreeCheckerApplication.getContext();
+        Intent intent = new Intent(context, AntennaCheckService.class);
+        intent.setAction(actionTag);
+        PendingIntent pIntent = PendingIntent.getService(context, 0, intent, 0);
+        return new NotificationCompat.Action.Builder(drawable, title, pIntent).build();
+    }
+
+    private static void sendNotification(Notification notification, AntennaCheckService service) {
         Context context = FreeCheckerApplication.getContext();
         notify(context, notification);
+        service.startForeground(NOTIFICATION_ID, notification);
     }
 
     @TargetApi(Build.VERSION_CODES.ECLAIR)
     private static void notify(final Context context, final Notification notification) {
+        currentNotification = notification;
         final NotificationManager nm = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR) {
-            nm.notify(NOTIFICATION_TAG, NOTIFICATION_ID, notification);
-        } else {
-            nm.notify(NOTIFICATION_TAG.hashCode(), notification);
-        }
+
+        nm.notify(NOTIFICATION_ID, notification);
     }
 
     public static void removeNotification() {
         Context context = FreeCheckerApplication.getContext();
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         //notificationManager.cancel(NOTIFICATION_ID);
-        notificationManager.cancelAll();
+        notificationManager.cancelAll(); //Just in case
+    }
+
+    public static Notification getCurrentNotification() {
+        return currentNotification;
     }
 }

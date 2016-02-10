@@ -1,5 +1,6 @@
 package fr.clementduployez.freechecker;
 
+import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
@@ -29,22 +30,30 @@ public class AntennaCheckService extends Service {
         }
         else if (intent != null && intent.getAction() != null && intent.getAction().equals("Settings"))
         {
-            Log.i("Service", "Open settings");
-            Intent mIntent = new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS);
-            mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            FreeCheckerApplication.getContext().startActivity(mIntent);
-            startActivity(mIntent);
-            sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+            openSettings();
+        }
+        else if (intent != null && intent.getAction() != null && intent.getAction().equals("Refresh"))
+        {
+            updateNotification();
         }
         else {
             if (mAntennaListener == null) {
                 initAntennaListener();
             }
+
             return Service.START_STICKY;
         }
 
         return Service.START_NOT_STICKY;
 
+    }
+
+    private void openSettings() {
+        Intent mIntent = new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS);
+        mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        //FreeCheckerApplication.getContext().startActivity(mIntent);
+        startActivity(mIntent);
+        sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
     }
 
     private void closeService(Intent intent) {
@@ -55,14 +64,18 @@ public class AntennaCheckService extends Service {
     }
 
     private void removeAntennaListener() {
-        mMobileInfo.getTelephonyManagerInfo().getTelephonyManager().listen(mAntennaListener,PhoneStateListener.LISTEN_NONE);
+        mMobileInfo.getTelephonyManagerInfo().getTelephonyManager().listen(mAntennaListener, PhoneStateListener.LISTEN_NONE);
         mAntennaListener = null;
     }
 
     private void initAntennaListener() {
         if (this.mAntennaListener == null) {
-            this.mAntennaListener = new AntennaListener(mMobileInfo);
+            this.mAntennaListener = new AntennaListener(mMobileInfo,this);
         }
         mMobileInfo.getTelephonyManagerInfo().getTelephonyManager().listen(mAntennaListener,PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
+    }
+
+    private void updateNotification() {
+        AntennaCheckServiceNotification.sendAntennaCheckNotification(mMobileInfo.getTelephonyManagerInfo().getMncCode(), this);
     }
 }
