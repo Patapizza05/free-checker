@@ -90,8 +90,12 @@ public class TelephonyManagerInfo {
     }
 
     public Integer getMCC(String networkOperator) {
-        if (networkOperator != null) {
-            return Integer.parseInt(networkOperator.substring(0, 3));
+        try {
+            if (networkOperator != null) {
+                return Integer.parseInt(networkOperator.substring(0, 3));
+            }
+        } catch(Exception ex) {
+
         }
         return null;
     }

@@ -1,31 +1,56 @@
 package fr.clementduployez.freechecker;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
-    private TextView mTextView;
     private MobileInfo mMobileInfo;
     private MenuItem mToggleServiceItem;
 
     private boolean wasChecked = false;
+    private TextView mTitle;
+    private ImageView mLogo;
+    private TextView mMnc;
+    private TextView mMcc;
+    private TextView mOperator;
+    private TextView mRoaming;
+    private TextView mCountry;
+
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if(action.equals("Update")){
+                updateAntennaInformation();
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mTextView = (TextView) findViewById(R.id.test);
+        mTitle = (TextView)findViewById(R.id.title);
+        mLogo = (ImageView)findViewById(R.id.logo);
+        mMnc = (TextView)findViewById(R.id.mnc);
+        mMcc = (TextView)findViewById(R.id.mcc);
+        mOperator = (TextView)findViewById(R.id.operator);
+        mRoaming = (TextView)findViewById(R.id.roaming);
+        mCountry = (TextView)findViewById(R.id.country);
         mMobileInfo = new MobileInfo(getApplicationContext());
     }
 
@@ -35,8 +60,6 @@ public class MainActivity extends Activity {
     }
 
     private void stopAntennaCheckService() {
-        /*Intent stopIntent = new Intent("Close");
-        sendBroadcast(stopIntent);*/
         Intent stopIntent = new Intent(MainActivity.this, AntennaCheckService.class);
         stopIntent.setAction("Close");
         Intent stopServiceIntent = new Intent(MainActivity.this, AntennaCheckService.class);
@@ -65,13 +88,100 @@ public class MainActivity extends Activity {
         if (!wasChecked && mToggleServiceItem != null && mToggleServiceItem.isChecked()) {
             startAntennaCheckService();
         }
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("Update");
+        registerReceiver(receiver, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        unregisterReceiver(receiver);
+        super.onPause();
     }
 
 
-
     public void updateAntennaInformation() {
-        String antenna = mMobileInfo.getTelephonyManagerInfo().getOperatorAntennaName();
-        mTextView.setText(antenna);
+        String title = null;
+        Integer mnc = null;
+        Integer mcc = null;
+        String operatorName = null;
+        String operatorId = null;
+        String country = null;
+        String brand = null;
+        Boolean roaming = false;
+        int imageResource = R.drawable.cross;
+
+        if (mMobileInfo != null) {
+            TelephonyManagerInfo telephonyManager = mMobileInfo.getTelephonyManagerInfo();
+
+            if (telephonyManager != null) {
+                title = telephonyManager.getOperatorAntennaName();
+
+                MncInfo mncInfo = telephonyManager.getMncCode();
+                if (mncInfo != null) {
+                    brand = mncInfo.getBrand();
+                    if (brand == null) brand = "";
+                    if (brand.equals(MncConstants.FREE)) {
+                        imageResource = R.drawable.freemobile;
+                    }
+                    else if (brand.equals(MncConstants.ORANGE)) {
+                        imageResource = R.drawable.orange_logo;
+                    }
+
+                    mnc = telephonyManager.getMNC();
+                    mcc = telephonyManager.getMCC();
+                    operatorName = telephonyManager.getOperatorName();
+                    operatorId = telephonyManager.getOperatorId();
+                    country = telephonyManager.getCountryIso();
+                }
+            }
+
+            ConnectivityManagerInfo conn = mMobileInfo.getConnectivityManagerInfo();
+            if (conn != null) {
+                NetworkInfo networkInfo = conn.getActiveNetworkInfo();
+                if (networkInfo != null) {
+                    roaming = networkInfo.isRoaming();
+                    roaming = roaming != null ? roaming : false;
+                }
+            }
+        }
+
+        mLogo.setImageResource(imageResource);
+        mTitle.setText(title);
+        if (mnc != null) {
+            mMnc.setText(mnc.toString());
+        }
+        else {
+            mMnc.setText("");
+        }
+
+        if (mcc != null){
+            mMcc.setText(mcc.toString());
+        }
+        else {
+            mMcc.setText("");
+        }
+
+        if (operatorName != null && operatorId != null) {
+            mOperator.setText(operatorName+" ("+operatorId+")");
+        }
+        else {
+            mOperator.setText("");
+        }
+
+        if (country != null) {
+            mCountry.setText(country.toUpperCase());
+        }
+        else {
+            mCountry.setText("");
+        }
+
+        if (roaming) {
+            mRoaming.setText("Oui");
+        }
+        else {
+            mRoaming.setText("Non");
+        }
     }
 
 
@@ -183,7 +293,7 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
 
-        mTextView.setText("network :" + network +
+        mTitle.setText("network :" + network +
 
                 "\n" + "countryISO : " + countryISO + "\n" + "operatorName : "
                 + operatorName + "\n" + "operator :      " + operator + "\n"

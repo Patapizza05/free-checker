@@ -20,26 +20,11 @@ public class AntennaCheckService extends Service {
 
     private AntennaListener mAntennaListener = null;
 
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if(action.equals("Close")){
-                closeService(intent);
-            }
-        }
-    };
+
 
     @Override
     public IBinder onBind(Intent intent) {
         return null;
-    }
-
-    @Override
-    public void onCreate() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("Close");
-        registerReceiver(receiver, filter);
     }
 
     @Override
@@ -92,16 +77,10 @@ public class AntennaCheckService extends Service {
         if (this.mAntennaListener == null) {
             this.mAntennaListener = new AntennaListener(mMobileInfo,this);
         }
-        mMobileInfo.getTelephonyManagerInfo().getTelephonyManager().listen(mAntennaListener,PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
+        mMobileInfo.getTelephonyManagerInfo().getTelephonyManager().listen(mAntennaListener, PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
     }
 
     private void updateNotification() {
         AntennaCheckServiceNotification.sendAntennaCheckNotification(mMobileInfo.getTelephonyManagerInfo().getMncCode(), this);
-    }
-
-    @Override
-    public void onDestroy(){
-        super.onDestroy();
-        unregisterReceiver(receiver);
     }
 }

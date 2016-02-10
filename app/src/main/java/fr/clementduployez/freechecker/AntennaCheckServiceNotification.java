@@ -119,6 +119,8 @@ public class AntennaCheckServiceNotification {
         Context context = FreeCheckerApplication.getContext();
         notify(context, notification);
         service.startForeground(NOTIFICATION_ID, notification);
+        Intent updateIntent = new Intent("Update");
+        service.sendBroadcast(updateIntent);
     }
 
     @TargetApi(Build.VERSION_CODES.ECLAIR)

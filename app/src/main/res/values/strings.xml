@@ -3,4 +3,7 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_toggleService">Run service</string>
+    <string name="mcc">MCC</string>
+    <string name="mnc">MNC</string>
+    <string name="operator">Opérateur</string>
 </resources>
