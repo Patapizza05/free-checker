@@ -17,6 +17,9 @@ public class MainActivity extends Activity {
 
     private TextView mTextView;
     private MobileInfo mMobileInfo;
+    private MenuItem mToggleServiceItem;
+
+    private boolean wasChecked = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,11 +34,27 @@ public class MainActivity extends Activity {
         startService(startIntent);
     }
 
+    private void stopAntennaCheckService() {
+        /*Intent stopIntent = new Intent("Close");
+        sendBroadcast(stopIntent);*/
+        Intent stopIntent = new Intent(MainActivity.this, AntennaCheckService.class);
+        stopIntent.setAction("Close");
+        Intent stopServiceIntent = new Intent(MainActivity.this, AntennaCheckService.class);
+        stopService(stopServiceIntent);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-
+        mToggleServiceItem = menu.findItem(R.id.action_toggleService);
+        if (mToggleServiceItem != null && mToggleServiceItem.isChecked()) {
+            startAntennaCheckService();
+            wasChecked = true;
+        }
+        else {
+            wasChecked = false;
+        }
         return true;
     }
 
@@ -43,8 +62,12 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         updateAntennaInformation();
-        startAntennaCheckService();
+        if (!wasChecked && mToggleServiceItem != null && mToggleServiceItem.isChecked()) {
+            startAntennaCheckService();
+        }
     }
+
+
 
     public void updateAntennaInformation() {
         String antenna = mMobileInfo.getTelephonyManagerInfo().getOperatorAntennaName();
@@ -60,7 +83,15 @@ public class MainActivity extends Activity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_toggleService) {
+            item.setChecked(!item.isChecked());
+            if (item.isChecked()) {
+                startAntennaCheckService();
+            }
+            else {
+                stopAntennaCheckService();
+            }
+
             return true;
         }
 

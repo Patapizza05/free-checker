@@ -2,7 +2,10 @@ package fr.clementduployez.freechecker;
 
 import android.app.Notification;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.telephony.PhoneStateListener;
@@ -17,9 +20,26 @@ public class AntennaCheckService extends Service {
 
     private AntennaListener mAntennaListener = null;
 
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if(action.equals("Close")){
+                closeService(intent);
+            }
+        }
+    };
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    @Override
+    public void onCreate() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("Close");
+        registerReceiver(receiver, filter);
     }
 
     @Override
@@ -77,5 +97,11 @@ public class AntennaCheckService extends Service {
 
     private void updateNotification() {
         AntennaCheckServiceNotification.sendAntennaCheckNotification(mMobileInfo.getTelephonyManagerInfo().getMncCode(), this);
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        unregisterReceiver(receiver);
     }
 }
