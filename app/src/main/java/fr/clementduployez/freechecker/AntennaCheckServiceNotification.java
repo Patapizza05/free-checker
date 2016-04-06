@@ -65,7 +65,7 @@ public class AntennaCheckServiceNotification {
 
     public static void sendUnknownNotification(AntennaCheckService service) {
         if (unknownNotification == null) {
-            unknownNotification = makeNotification("Unknown", R.drawable.cross, FreeCheckerApplication.getContext().getResources().getColor(R.color.red));
+            unknownNotification = makeNotification("Unknown", R.drawable.ic_help_outline_white_18dp, FreeCheckerApplication.getContext().getResources().getColor(R.color.red));
         }
         sendNotification(unknownNotification, service);
     }

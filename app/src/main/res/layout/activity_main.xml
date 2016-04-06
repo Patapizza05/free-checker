@@ -8,8 +8,9 @@
 
     <LinearLayout
         android:orientation="horizontal"
-        android:background="@android:color/white"
-        android:elevation="5dp"
+        android:background="@drawable/ripple_background"
+        android:clickable="true"
+        android:elevation="2dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
@@ -41,8 +42,9 @@
 
         <LinearLayout
             android:orientation="horizontal"
-            android:background="@android:color/white"
-            android:elevation="5dp"
+            android:background="@drawable/ripple_background"
+            android:clickable="true"
+            android:elevation="2dp"
             android:layout_margin="5dp"
             android:layout_weight="1"
             android:layout_width="match_parent"
@@ -69,8 +71,9 @@
 
         <LinearLayout
             android:orientation="horizontal"
-            android:background="@android:color/white"
-            android:elevation="5dp"
+            android:background="@drawable/ripple_background"
+            android:clickable="true"
+            android:elevation="2dp"
             android:layout_weight="1"
             android:layout_margin="5dp"
             android:layout_width="match_parent"
@@ -103,8 +106,9 @@
 
         <LinearLayout
             android:orientation="horizontal"
-            android:background="@android:color/white"
-            android:elevation="5dp"
+            android:background="@drawable/ripple_background"
+            android:clickable="true"
+            android:elevation="2dp"
             android:layout_margin="5dp"
             android:layout_weight="1"
             android:layout_width="match_parent"
@@ -138,8 +142,9 @@
 
         <LinearLayout
             android:orientation="horizontal"
-            android:background="@android:color/white"
-            android:elevation="5dp"
+            android:background="@drawable/ripple_background"
+            android:clickable="true"
+            android:elevation="2dp"
             android:layout_margin="5dp"
             android:layout_weight="1"
             android:layout_width="match_parent"
@@ -172,8 +177,9 @@
 
         <LinearLayout
             android:orientation="horizontal"
-            android:background="@android:color/white"
-            android:elevation="5dp"
+            android:background="@drawable/ripple_background"
+            android:clickable="true"
+            android:elevation="2dp"
             android:layout_margin="5dp"
             android:layout_weight="1"
             android:layout_width="match_parent"
